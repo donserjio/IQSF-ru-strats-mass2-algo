@@ -591,7 +591,7 @@ function ExchangesBar() {
       <div className="max-w-5xl mx-auto text-center">
         <AnimatedSection>
           <p className="text-lg sm:text-xl text-white font-semibold mb-8 tracking-wide">
-            Работаем с крупнейшими криптобиржами
+            Our partner exchanges
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
             {exchanges.map((ex) => (
@@ -873,10 +873,10 @@ function EquityChartSection({ stats, isLoading, strategyKey }: { stats?: StatsDa
         <AnimatedSection>
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
-              Results стратегии
+              Strategy Results
             </h2>
             <p className="text-muted-foreground text-sm max-w-lg mx-auto">
-              Рост капитала и эквити стратегии
+              Equity curve — compounded capital growth
             </p>
             <LiveDataBadge text="Updated daily · Binance API" />
           </div>
@@ -1180,7 +1180,7 @@ function Footer() {
       <div className="px-4 sm:px-6 pb-10">
         <div className="max-w-7xl mx-auto pt-8">
           <p className="text-xs text-muted-foreground/60 leading-relaxed max-w-5xl mx-auto text-center">
-            <strong>Отказ от ответственности:</strong> Алгоритмическая торговля цифровыми активами сопряжена со значительными рисками и подходит только для квалифицированных клиентов. Цифровые активы высоко волатильны и носят спекулятивный характер. Стратегии могут испытывать существенные просадки в неблагоприятных рыночных условиях. Рынки криптовалют подвержены развивающейся и неопределённой нормативной среде. Существует биржевой риск контрагента, включая возможность отказа биржи или нарушений безопасности. Прошлые результаты не являются показателем будущих результатов. Клиенты должны иметь достаточный баланс, чтобы переносить потерю значительной части или всего вложенного капитала. Данный сервис не подходит для клиентов, которые не могут перенести существенные потери капитала или которым требуется ликвидность в короткие сроки.
+            <strong>Disclaimer:</strong> Algorithmic trading of digital assets involves significant risks and is suitable only for qualified clients. Digital assets are highly volatile and speculative in nature. Strategies may experience substantial drawdowns under adverse market conditions. Cryptocurrency markets are subject to an evolving and uncertain regulatory environment. Exchange counterparty risk exists, including the possibility of exchange failure or security breaches. Past performance is not indicative of future results. Clients must have sufficient capital to sustain the loss of a significant portion or all of their invested capital. This service is not suitable for clients who cannot sustain substantial capital losses or who require liquidity in the short term.
           </p>
           <div className="mt-4 text-xs text-muted-foreground/40 text-center">
             &copy; {new Date().getFullYear()} Управляющая компания. All права защищены.
@@ -1200,44 +1200,44 @@ function LegalDisclaimerModal() {
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="w-full max-w-4xl max-h-[85vh] flex flex-col bg-card border border-border/50 rounded-md shadow-2xl">
         <div className="px-6 pt-6 pb-4 border-b border-border/30">
-          <h2 className="text-lg font-semibold text-foreground">Важная правовая информация</h2>
+          <h2 className="text-lg font-semibold text-foreground">Important Legal Information</h2>
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 text-sm text-muted-foreground leading-relaxed custom-scrollbar">
           <div>
-            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Только информационные цели</h3>
-            <p>Настоящий сайт предоставлен исключительно в информационных целях и не является предложением о продаже, запросом на предложение или какой-либо формой инвестиционного совета. Доступ к данному сервису предоставляется только квалифицированным клиентам, соответствующим применимым критериям приемлемости, и заключившим соглашение об оказании услуг с Управляющая компания.</p>
+            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">For informational purposes only</h3>
+            <p>This website is provided for informational purposes only and does not constitute an offer to sell, a solicitation of an offer, or any form of investment advice. Access to this service is provided only to qualified clients who meet applicable eligibility criteria and have entered into a service agreement with the management company.</p>
           </div>
           <div>
-            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Не является инвестиционным советом</h3>
-            <p>Ничто на этом сайте не является инвестиционным, юридическим, налоговым или иным советом. Потенциальным клиентам следует проконсультироваться с собственными профессиональными советниками относительно пригодности данного сервиса для их обстоятельств.</p>
+            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Not investment advice</h3>
+            <p>Nothing on this website constitutes investment, legal, tax, or other advice. Prospective clients should consult their own professional advisors regarding the suitability of this service for their circumstances.</p>
           </div>
           <div>
-            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Риск потерь</h3>
-            <p>Алгоритмическая торговля цифровыми активами сопряжена со значительными рисками, включая возможную потерю всей или значительной части вложенного капитала. Цифровые активы высоко волатильны и носят спекулятивный характер. Данный сервис подходит только для клиентов, которые могут позволить себе потерять всю аллокацию.</p>
+            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Risk of loss</h3>
+            <p>Algorithmic trading of digital assets involves significant risks, including the possible loss of all or a substantial portion of invested capital. Digital assets are highly volatile and speculative in nature. This service is only suitable for clients who can afford to lose their entire allocation.</p>
           </div>
           <div>
-            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Прошлые результаты</h3>
-            <p>Прошлые результаты не являются показателем будущих результатов. Представленные на сайте данные отражают результаты реальной алгоритмической торговли. Исторические результаты не являются гарантией будущей доходности и не отражают влияние всех возможных рыночных сценариев на результаты стратегии.</p>
+            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Past performance</h3>
+            <p>Past performance is not indicative of future results. The data presented on this website reflects the results of live algorithmic trading. Historical results are not a guarantee of future returns and do not reflect the impact of all possible market scenarios on strategy performance.</p>
           </div>
           <div>
-            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Отсутствие гарантий</h3>
-            <p>Нет гарантии, что стратегии достигнут своих целей. Целевая доходность и метрики риска являются целями, а не гарантиями. Существенные просадки могут возникать в неблагоприятных рыночных условиях.</p>
+            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">No guarantees</h3>
+            <p>There is no guarantee that the strategies will achieve their objectives. Target returns and risk metrics are goals, not guarantees. Substantial drawdowns may occur under adverse market conditions.</p>
           </div>
           <div>
-            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Биржевые и контрагентские риски</h3>
-            <p>Средства клиентов остаются на собственном субаккаунте клиента на бирже. Управляющая компания имеет только API-доступ для торговли без разрешения на вывод средств. Существует биржевой риск контрагента, включая возможность отказа биржи или нарушений безопасности, оценка которых лежит на клиенте.</p>
+            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Exchange and counterparty risks</h3>
+            <p>Client funds remain in the client's own sub-account on the exchange. The management company has only API access for trading without permission to withdraw funds. Exchange counterparty risk exists, including the possibility of exchange failure or security breaches, the assessment of which lies with the client.</p>
           </div>
           <div>
-            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Прогнозные заявления</h3>
-            <p>Этот сайт может содержать прогнозные заявления. Такие заявления подвержены рискам и неопределённостям, которые могут привести к существенным отличиям фактических результатов. Управляющая компания не берёт на себя обязательства по обновлению прогнозных заявлений.</p>
+            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Forward-looking statements</h3>
+            <p>This website may contain forward-looking statements. Such statements are subject to risks and uncertainties that may cause actual results to differ materially. The management company undertakes no obligation to update forward-looking statements.</p>
           </div>
           <div>
-            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Доступ по инициативе клиента</h3>
-            <p>Содержание этого сайта доступно только лицам, получившим к нему доступ по собственной инициативе, без какого-либо прямого или косвенного привлечения со стороны Управляющая компания. Если вы не заходили на этот сайт по собственной инициативе, вам следует немедленно покинуть его.</p>
+            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Client-initiated access</h3>
+            <p>The content of this website is only available to persons who have accessed it on their own initiative, without any direct or indirect solicitation by the management company. If you have not accessed this website on your own initiative, you should leave immediately.</p>
           </div>
           <div>
-            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Ограниченные юрисдикции</h3>
-            <p>Информация на этом сайте не предназначена для распространения среди лиц или организаций в какой-либо юрисдикции или стране, где такое распространение или использование противоречило бы местному законодательству или нормативным требованиям.</p>
+            <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Restricted jurisdictions</h3>
+            <p>The information on this website is not intended for distribution to persons or entities in any jurisdiction or country where such distribution or use would be contrary to local law or regulatory requirements.</p>
           </div>
         </div>
         <div className="px-6 py-4 border-t border-border/30 flex flex-col sm:flex-row gap-3 sm:justify-end">
@@ -1246,13 +1246,13 @@ function LegalDisclaimerModal() {
             onClick={() => window.location.href = "https://www.google.com"}
             data-testid="button-leave-site"
           >
-            Покинуть сайт
+            Leave Site
           </Button>
           <Button
             onClick={() => setAccepted(true)}
             data-testid="button-accept-disclaimer"
           >
-            Принимаю
+            I Agree
           </Button>
         </div>
       </div>
