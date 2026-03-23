@@ -507,14 +507,14 @@ function HeroSection({ stats, sc }: { stats?: StatsData; sc: StrategyConfig }) {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400"></span>
                 </span>
-                Алгоритмический трейдинг 24/7
+                Algorithmic Trading 24/7
               </div>
             </AnimatedSection>
 
             <AnimatedSection delay={100}>
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-[1.08] tracking-tight">
-                Алгоритм торгует.<br />
-                <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Вы зарабатываете.</span>
+                The algorithm trades.<br />
+                <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">You earn.</span>
               </h1>
             </AnimatedSection>
 
@@ -678,7 +678,7 @@ function MetricsSection({ stats, isLoading, strategyKey }: { stats?: StatsData; 
         <AnimatedSection>
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
-              Ключевые показатели
+              Key Metrics
             </h2>
             <p className="text-muted-foreground text-sm max-w-lg mx-auto">
               {stats?.dateRange ? `Period: ${localizeDate(stats.dateRange)}` : "Loading data..."}
@@ -792,7 +792,7 @@ function ChartPeriodFilter({
         className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${active === "all" ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/40" : "bg-background/50 border border-border/50 text-muted-foreground hover:text-foreground"}`}
         data-testid="button-filter-all"
       >
-        Всё время
+        All Time
       </button>
       {years.map((y) => (
         <button
@@ -811,7 +811,7 @@ function ChartPeriodFilter({
             data-testid="button-filter-calendar"
           >
             <CalendarRange className="w-3 h-3" />
-            Период
+            Period
           </button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0 bg-card border-border/50" align="start">
@@ -893,7 +893,7 @@ function EquityChartSection({ stats, isLoading, strategyKey }: { stats?: StatsDa
             {isLoading ? (
               <Skeleton className="h-[300px] w-full" />
             ) : filteredData.length === 0 ? (
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">Нет данных</div>
+              <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">No data</div>
             ) : (
               <div className="h-[300px] sm:h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -988,7 +988,7 @@ function ResultsSection({ stats, isLoading }: { stats?: StatsData; isLoading: bo
               Results
             </h2>
             <p className="text-muted-foreground text-sm max-w-lg mx-auto">
-              Yearовые доходности и ключевая статистика
+              Annual Returns & Key Statistics
             </p>
             <LiveDataBadge text="Based on verified live trading results" />
           </div>
@@ -998,7 +998,7 @@ function ResultsSection({ stats, isLoading }: { stats?: StatsData; isLoading: bo
           <AnimatedSection delay={100}>
             <Card className="overflow-hidden bg-card/50 backdrop-blur-sm border-border/50">
               <div className="p-4 border-b border-border/30">
-                <h3 className="text-sm font-semibold text-foreground">Yearовые доходности</h3>
+                <h3 className="text-sm font-semibold text-foreground">Annual Returns</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -1028,7 +1028,7 @@ function ResultsSection({ stats, isLoading }: { stats?: StatsData; isLoading: bo
           <AnimatedSection delay={200}>
             <Card className="overflow-hidden bg-card/50 backdrop-blur-sm border-border/50">
               <div className="p-4 border-b border-border/30">
-                <h3 className="text-sm font-semibold text-foreground">Статистика результатов</h3>
+                <h3 className="text-sm font-semibold text-foreground">Performance Statistics</h3>
               </div>
               <div className="p-4 space-y-0">
                 {resultStats.map((item) => (
@@ -1067,10 +1067,10 @@ function AccessTermsSection({ sc }: { sc: StrategyConfig }) {
         <AnimatedSection>
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
-              Условия подключения
+              Connection Terms
             </h2>
             <p className="text-muted-foreground text-sm max-w-lg mx-auto">
-              Автоматический алготрейдинг — просто и безопасно
+              Automated algo trading — simple and secure
             </p>
           </div>
         </AnimatedSection>
@@ -1183,7 +1183,7 @@ function Footer() {
             <strong>Disclaimer:</strong> Algorithmic trading of digital assets involves significant risks and is suitable only for qualified clients. Digital assets are highly volatile and speculative in nature. Strategies may experience substantial drawdowns under adverse market conditions. Cryptocurrency markets are subject to an evolving and uncertain regulatory environment. Exchange counterparty risk exists, including the possibility of exchange failure or security breaches. Past performance is not indicative of future results. Clients must have sufficient capital to sustain the loss of a significant portion or all of their invested capital. This service is not suitable for clients who cannot sustain substantial capital losses or who require liquidity in the short term.
           </p>
           <div className="mt-4 text-xs text-muted-foreground/40 text-center">
-            &copy; {new Date().getFullYear()} Управляющая компания. All права защищены.
+            &copy; {new Date().getFullYear()} Management Company. All rights reserved.
           </div>
         </div>
       </div>
@@ -1316,9 +1316,9 @@ export default function Home() {
         <div className="max-w-5xl mx-auto">
           <AnimatedSection>
             <div className="text-center mb-10">
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Как устроена стратегия</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Strategy Architecture</h2>
               <p className="text-muted-foreground text-sm max-w-2xl mx-auto">
-                15 торговых систем на 2 наиболее ликвидных парах — BTC и ETH. Полностью автоматизированное исполнение с встроенным контролем рисков.
+                15 trading systems on the 2 most liquid pairs — BTC and ETH. Fully automated execution with built-in risk management.
               </p>
             </div>
           </AnimatedSection>
@@ -1370,8 +1370,8 @@ export default function Home() {
         <div className="max-w-5xl mx-auto">
           <AnimatedSection>
             <div className="text-center mb-10">
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Как это работает</h2>
-              <p className="text-muted-foreground text-sm max-w-lg mx-auto">Алготрейдинг через API биржи — просто и быстро</p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">How It Works</h2>
+              <p className="text-muted-foreground text-sm max-w-lg mx-auto">Algo trading via exchange API — simple and fast</p>
             </div>
           </AnimatedSection>
           <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:gap-6">
@@ -1400,8 +1400,8 @@ export default function Home() {
         <div className="max-w-5xl mx-auto">
           <AnimatedSection>
             <div className="text-center mb-10">
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Почему алготрейдинг по API</h2>
-              <p className="text-muted-foreground text-sm max-w-lg mx-auto">Преимущества алгоритмической торговли</p>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Why Algorithmic Trading via API</h2>
+              <p className="text-muted-foreground text-sm max-w-lg mx-auto">Advantages of algorithmic trading</p>
             </div>
           </AnimatedSection>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -1428,7 +1428,7 @@ export default function Home() {
 
       <section className="py-12 px-4 sm:px-6 text-center">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Готовы подключиться?</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Ready to Connect?</h2>
           <p className="text-muted-foreground text-sm mb-8 max-w-lg mx-auto">
             Contact our team directly. We'll walk you through the strategy, connection process, and onboarding.
           </p>
@@ -1454,7 +1454,7 @@ export default function Home() {
               onClick={() => window.open("https://t.me/etheremax", "_blank")}
             >
               <Send className="w-4 h-4 mr-2" />
-              Contact Us в Telegram
+              Contact via Telegram
             </Button>
             <Button
               size="lg"
@@ -1462,7 +1462,7 @@ export default function Home() {
               onClick={() => window.open("https://wa.me/48883750965", "_blank")}
             >
               <SiWhatsapp className="w-4 h-4 mr-2" />
-              Contact Us в WhatsApp
+              Contact via WhatsApp
             </Button>
           </div>
         </div>
