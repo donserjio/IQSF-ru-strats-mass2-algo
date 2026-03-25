@@ -277,10 +277,12 @@ function ParticleCanvas() {
 }
 
 const NAV_ITEMS = [
-  { label: "Results", href: "#results" },
+  { label: "Strategy", href: "#strategy" },
+  { label: "Equity", href: "#equity" },
   { label: "Metrics", href: "#metrics" },
-  { label: "How It Works", href: "#how-it-works" },
-  { label: "FAQ", href: "#faq" },
+  { label: "P&L", href: "#daily-pnl" },
+  { label: "Capital Growth", href: "#roi" },
+  { label: "Terms", href: "#terms" },
 ];
 
 const STRATEGY_OPTIONS: { key: StrategyKey; label: string }[] = [
