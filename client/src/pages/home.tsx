@@ -1039,7 +1039,9 @@ function ZoomableChart({
 function EquityChartSection({ stats, isLoading, strategyKey }: { stats?: StatsData; isLoading: boolean; strategyKey: StrategyKey }) {
   const equityRaw = stats?.equity ?? [];
   const [filteredData, setFilteredData] = useState(equityRaw);
-  const [capitalInput, setCapitalInput] = useState(10000);
+  const [capitalInput, setCapitalInput] = useState(300000);
+  const capitalPresets = [300000, 500000, 1000000, 2000000, 5000000];
+  const fmtCapital = (v: number) => v >= 1000000 ? `$${v/1000000}M` : `$${v/1000}K`;
 
   useEffect(() => {
     setFilteredData(equityRaw);
@@ -1074,21 +1076,18 @@ function EquityChartSection({ stats, isLoading, strategyKey }: { stats?: StatsDa
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
               <h3 className="text-sm font-semibold text-foreground">Equity Curve</h3>
-              <div className="flex items-center gap-3 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <label className="text-xs text-muted-foreground whitespace-nowrap">Initial Capital:</label>
-                  <div className="flex items-center border border-border/50 rounded-md bg-background/50 px-2 py-1">
-                    <span className="text-xs text-muted-foreground mr-1">$</span>
-                    <input
-                      type="number"
-                      min={100}
-                      step={1000}
-                      value={capitalInput}
-                      onChange={(e) => setCapitalInput(Math.max(100, Number(e.target.value) || 10000))}
-                      className="w-24 text-xs bg-transparent text-foreground outline-none"
-                    />
-                  </div>
-                </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-muted-foreground whitespace-nowrap">Capital:</span>
+                {capitalPresets.map((v) => (
+                  <button key={v} onClick={() => setCapitalInput(v)}
+                    className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
+                      capitalInput === v
+                        ? "bg-gradient-to-r from-cyan-600/80 to-blue-700/80 text-white"
+                        : "bg-background/50 border border-border/50 text-muted-foreground hover:text-foreground hover:border-cyan-500/40"
+                    }`}>
+                    {fmtCapital(v)}
+                  </button>
+                ))}
                 <Button
                   variant="outline"
                   size="sm"
