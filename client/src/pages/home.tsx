@@ -1331,7 +1331,7 @@ function DailyPnlSection({ stats, isLoading, strategyKey }: { stats?: StatsData;
                         tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 9, angle: -35, textAnchor: "end", dy: 4 }}
                         tickLine={false} axisLine={{ stroke: "hsl(var(--border))" }}
                         height={48}
-                        tickFormatter={(v: string) => new Date(v + "T00:00:00").toLocaleDateString("en-US", { month: "short", year: "2-digit" })}
+                        tickFormatter={(v: string) => { const d = new Date(v + 'T00:00:00'); return d.toLocaleDateString('en-US', { month: 'short' }) + ' \'' + d.getFullYear().toString().slice(-2); }}
                         interval={Math.max(0, Math.floor(displayData.length / 6) - 1)} />
                       <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} tickLine={false} axisLine={false}
                         tickFormatter={(v: number) => `${v > 0 ? "+" : ""}${v.toFixed(1)}%`}
