@@ -1349,11 +1349,11 @@ function EquityChartSection({ stats, isLoading, strategyKey }: { stats?: StatsDa
 // ── ROI Growth Section ────────────────────────────────────────────────────────
 function ROIGrowthSection({ stats }: { stats?: StatsData }) {
   const CAPITALS = [
-    { label: "$300K", value: 300_000 },
+    { label: "$20K", value: 20_000 },
+    { label: "$50K", value: 50_000 },
+    { label: "$100K", value: 100_000 },
     { label: "$500K", value: 500_000 },
     { label: "$1M", value: 1_000_000 },
-    { label: "$2M", value: 2_000_000 },
-    { label: "$5M", value: 5_000_000 },
   ];
 
   const [capitalIdx, setCapitalIdx] = useState(0);
