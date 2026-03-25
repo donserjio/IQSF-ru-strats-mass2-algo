@@ -1137,7 +1137,7 @@ function DrawdownChartSection({ stats, isLoading }: { stats?: StatsData; isLoadi
               <Skeleton className="h-[350px] w-full" />
             ) : (
               <>
-                <ChartPeriodFilter allData={allData} onFilter={setFilteredData} rebaseOnFilter />
+                <ChartPeriodFilter allData={allData} onFilter={setFilteredData} />
                 <ZoomableChart
                   data={filteredData}
                   color="#ef4444bb"
@@ -1490,7 +1490,7 @@ function ROIGrowthSection({ stats }: { stats?: StatsData }) {
               </Card>
               <Card className="p-4 bg-background/50 border-border/30 text-center h-[88px] flex flex-col justify-center">
                 <p className="text-xs text-muted-foreground mb-2">As of</p>
-                <p className="text-base sm:text-lg font-bold font-mono text-muted-foreground">{currentDate ? new Date(currentDate).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "—"}</p>
+                <p className="text-base sm:text-lg font-bold font-mono text-muted-foreground whitespace-nowrap">{currentDate ? new Date(currentDate).toLocaleDateString("en-US", { month: "short", year: "2-digit" }) : "—"}</p>
               </Card>
             </div>
             <div className="relative h-64 sm:h-80 mb-2">
