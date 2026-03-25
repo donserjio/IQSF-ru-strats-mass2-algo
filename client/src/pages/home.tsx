@@ -26,6 +26,7 @@ import {
   Wallet,
   Eye,
   PercentCircle,
+  Download,
 } from "lucide-react";
 import {
   AreaChart,
@@ -592,7 +593,7 @@ function ExchangesBar() {
       <div className="max-w-5xl mx-auto text-center">
         <AnimatedSection>
           <p className="text-lg sm:text-xl text-white font-semibold mb-8 tracking-wide">
-            Our partner exchanges
+            We trade on exchanges:
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
             {exchanges.map((ex) => (
@@ -1038,10 +1039,16 @@ function ZoomableChart({
 function EquityChartSection({ stats, isLoading, strategyKey }: { stats?: StatsData; isLoading: boolean; strategyKey: StrategyKey }) {
   const equityRaw = stats?.equity ?? [];
   const [filteredData, setFilteredData] = useState(equityRaw);
+  const [capitalInput, setCapitalInput] = useState(10000);
 
   useEffect(() => {
     setFilteredData(equityRaw);
   }, [equityRaw]);
+
+  const capitalData = filteredData.map((d) => ({
+    ...d,
+    value: parseFloat((capitalInput * (1 + d.value / 100) - capitalInput).toFixed(2)),
+  }));
 
   return (
     <section id="equity" className="py-12 px-4 sm:px-6 relative" data-testid="section-equity">
@@ -1062,9 +1069,34 @@ function EquityChartSection({ stats, isLoading, strategyKey }: { stats?: StatsDa
           <Card className="bg-card/50 backdrop-blur-sm border-border/50 p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
               <h3 className="text-sm font-semibold text-foreground">Equity Curve</h3>
-              {equityRaw.length > 0 && (
-                <ChartPeriodFilter allData={equityRaw} onFilter={setFilteredData} rebaseOnFilter />
-              )}
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-muted-foreground whitespace-nowrap">Initial Capital:</label>
+                  <div className="flex items-center border border-border/50 rounded-md bg-background/50 px-2 py-1">
+                    <span className="text-xs text-muted-foreground mr-1">$</span>
+                    <input
+                      type="number"
+                      min={100}
+                      step={1000}
+                      value={capitalInput}
+                      onChange={(e) => setCapitalInput(Math.max(100, Number(e.target.value) || 10000))}
+                      className="w-24 text-xs bg-transparent text-foreground outline-none"
+                    />
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs border-border/50 gap-1.5"
+                  onClick={() => window.open(`/api/quantstats?strategy=${strategyKey}`, "_blank")}
+                >
+                  <Download className="w-3 h-3" />
+                  QuantStats Report
+                </Button>
+                {equityRaw.length > 0 && (
+                  <ChartPeriodFilter allData={equityRaw} onFilter={setFilteredData} rebaseOnFilter />
+                )}
+              </div>
             </div>
             {isLoading ? (
               <Skeleton className="h-[300px] w-full" />
@@ -1072,14 +1104,13 @@ function EquityChartSection({ stats, isLoading, strategyKey }: { stats?: StatsDa
               <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">No data</div>
             ) : (
               <ZoomableChart
-                data={filteredData}
+                data={capitalData}
                 color="#06b6d4"
                 gradientId="equityGrad"
-                valueSuffix="%"
-                valueLabel="Return"
-                valueDecimals={2}
+                valueSuffix="$"
+                valueLabel="P&L"
+                valueDecimals={0}
                 height="h-[300px] sm:h-[400px]"
-                rebaseOnZoom
                 yearlyTicks
                 locale="en-US"
                 liveBadgeText="Live trading account · Updated daily via Binance API"
