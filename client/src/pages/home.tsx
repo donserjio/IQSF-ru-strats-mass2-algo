@@ -1663,7 +1663,7 @@ function ResultsSection({ stats, isLoading }: { stats?: StatsData; isLoading: bo
 const ACCESS_TERMS_BASE = [
   { label: "Min. Allocation", value: "$20,000" },
   { label: "Management Fee", value: "0%" },
-  { label: "Performance Fee", value: "30%" },
+  { label: "Performance Fee", value: "35%" },
   { label: "High-water mark", value: "Applied" },
   { label: "Lock-up Period", value: "None" },
   { label: "Fee Distribution", value: "Quarterly" },
@@ -1728,7 +1728,7 @@ function buildFaqItems(sc: StrategyConfig) {
     },
     {
       q: "What fees apply?",
-      a: "Management fee is 0%, plus a 30% performance fee with high-water mark. Fees are calculated and distributed quarterly. No lock-up period.",
+      a: "Management fee is 0%, plus a 35% performance fee with high-water mark. Fees are calculated and distributed quarterly. No lock-up period.",
     },
     {
       q: "Which exchanges are supported?",
@@ -2005,7 +2005,7 @@ export default function Home() {
             {[
               { step: "01", title: "Open an Exchange Account", desc: "Binance, OKX, Bybit, Bitget, BingX. Minimum — $20,000." },
               { step: "02", title: "Contact Us", desc: "Telegram / WhatsApp. Connection via API key in 10 minutes." },
-              { step: "03", title: "The Algorithm Works for You", desc: "24/7 automated trading. 30% performance fee. No lock-up." },
+              { step: "03", title: "The Algorithm Works for You", desc: "24/7 automated trading. 35% performance fee. No lock-up." },
             ].map((item) => (
               <AnimatedSection key={item.step} delay={parseInt(item.step) * 100}>
                 <div className="flex sm:flex-col items-center sm:text-center gap-4 sm:gap-0 p-4 sm:p-6 rounded-xl border border-border/30 bg-card/40 backdrop-blur-sm h-full">
@@ -2036,7 +2036,7 @@ export default function Home() {
               { icon: Shield, title: "No fund transfer", desc: "Funds always stay in your exchange account." },
               { icon: Wallet, title: "Withdraw Anytime", desc: "No lock-up." },
               { icon: Eye, title: "Full Transparency", desc: "Every trade is visible in the exchange app." },
-              { icon: PercentCircle, title: "Fair Fee", desc: "30% only on profits." },
+              { icon: PercentCircle, title: "Fair Fee", desc: "35% only on profits." },
             ].map((item, i) => (
               <AnimatedSection key={item.title} delay={i * 80}>
                 <div className="p-4 sm:p-6 rounded-xl border border-border/30 bg-card/40 backdrop-blur-sm h-full text-center">
