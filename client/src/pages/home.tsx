@@ -1405,7 +1405,7 @@ function ResultsSection({ stats, isLoading }: { stats?: StatsData; isLoading: bo
                 {resultStats.map((item) => (
                   <div key={item.label} className="flex items-center justify-between py-3 border-b border-border/20 last:border-0">
                     <span className="text-sm text-muted-foreground">{item.label}</span>
-                    <span className="text-sm font-mono font-medium text-foreground">{item.value}</span>
+                    <span className={`text-sm font-mono font-medium ${typeof item.value === "string" && item.value.startsWith("-") ? "text-red-400" : "text-foreground"}`}>{item.value}</span>
                   </div>
                 ))}
               </div>
