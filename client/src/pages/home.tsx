@@ -542,7 +542,7 @@ function HeroSection({ stats, sc }: { stats?: StatsData; sc: StrategyConfig }) {
               <div className="flex flex-nowrap gap-3 w-full sm:w-auto">
                 <Button
                   size="lg"
-                  className="flex-1 sm:flex-none bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold px-8 py-6 text-base rounded-xl cta-pulse transition-all"
+                  className="flex-1 sm:flex-none bg-gradient-to-r from-cyan-600/80 to-blue-700/80 text-white font-bold px-8 py-6 text-base rounded-xl cta-pulse transition-all"
                   onClick={() => window.open("https://t.me/etheremax", "_blank")}
                 >
                   Get Started
@@ -2075,7 +2075,7 @@ export default function Home() {
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Button
               size="lg"
-              className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20 min-w-[200px] cta-pulse transition-all"
+              className="bg-gradient-to-r from-cyan-600/80 to-blue-700/80 text-white shadow-lg shadow-cyan-500/15 min-w-[200px] cta-pulse transition-all"
               onClick={() => window.open("https://t.me/etheremax", "_blank")}
             >
               <Send className="w-4 h-4 mr-2" />
