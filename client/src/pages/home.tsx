@@ -27,10 +27,22 @@ import {
   Eye,
   PercentCircle,
   Download,
+  Layers,
+  Activity,
+  FileText,
 } from "lucide-react";
+import {
+  Tooltip as UITooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   AreaChart,
   Area,
+  BarChart,
+  Bar,
+  Cell,
   XAxis,
   YAxis,
   Tooltip,
@@ -1036,6 +1048,235 @@ function ZoomableChart({
   );
 }
 
+// ── Strategy Overview ────────────────────────────────────────────────────────
+function StrategyOverviewSection({ sc }: { sc: StrategyConfig }) {
+  return (
+    <section id="strategy" className="py-12 px-4 sm:px-6 relative" data-testid="section-strategy">
+      <div className="max-w-5xl mx-auto">
+        <AnimatedSection>
+          <div className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">About the Strategy</h2>
+            <p className="text-muted-foreground text-sm max-w-2xl mx-auto">
+              {sc.label} is a systematic portfolio based on the {sc.approachFull}.<br />
+              IQ Security Fund manages trading on behalf of clients via API connection to their exchange sub-accounts, with no custody of client funds.
+            </p>
+          </div>
+        </AnimatedSection>
+        <div className="grid lg:grid-cols-2 gap-6">
+          <AnimatedSection>
+            <Card className="p-6 bg-card/50 backdrop-blur-sm border-border/50 h-full">
+              <h3 className="text-lg font-semibold text-foreground mb-5 flex items-center gap-2">
+                <Layers className="w-5 h-5 text-cyan-400" />
+                Strategy Parameters
+              </h3>
+              <div className="space-y-4">
+                {[
+                  { label: "Strategy Type", value: sc.strategyType },
+                  { label: "Instrument", value: "Perpetual Futures (BTC, ETH)" },
+                  { label: "Holding Period", value: sc.holdingPeriod },
+                  { label: "Direction", value: "Long & Short" },
+                  { label: "Portfolio", value: "Systematic, diversified" },
+                ].map((item) => (
+                  <div key={item.label} className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 py-3 border-b border-border/30 last:border-0">
+                    <span className="text-sm text-muted-foreground">{item.label}</span>
+                    <span className="text-sm font-medium text-foreground font-mono">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </AnimatedSection>
+          <AnimatedSection delay={150}>
+            <Card className="p-6 bg-card/50 backdrop-blur-sm border-border/50 h-full flex flex-col">
+              <h3 className="text-lg font-semibold text-foreground mb-5 flex items-center gap-2">
+                <Activity className="w-5 h-5 text-cyan-400" />
+                Trading Logic
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-6">{sc.archDesc}</p>
+              <div className="mt-auto grid grid-cols-2 gap-3">
+                {[
+                  { val: "12+", desc: "Years of research" },
+                  { val: sc.key === "basket70tf" ? "3" : "2", desc: "Strategy types" },
+                  { val: "2", desc: "Trading pairs" },
+                  { val: "24/7", desc: "Automated" },
+                ].map((s) => (
+                  <div key={s.desc} className="bg-background/50 rounded-md p-3 text-center">
+                    <div className="text-lg font-bold font-mono text-cyan-400">{s.val}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{s.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </AnimatedSection>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Drawdown Chart ────────────────────────────────────────────────────────────
+function DrawdownChartSection({ stats, isLoading }: { stats?: StatsData; isLoading: boolean }) {
+  const allData = (stats?.drawdownChart || []).map((d) => ({ date: d.date, value: d.value }));
+  const [filteredData, setFilteredData] = useState(allData);
+  useEffect(() => { setFilteredData(allData); }, [stats]);
+
+  return (
+    <section id="drawdown-chart" className="py-12 px-4 sm:px-6 relative" data-testid="section-drawdown-chart">
+      <div className="max-w-5xl mx-auto">
+        <AnimatedSection>
+          <div className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Drawdown</h2>
+            <p className="text-muted-foreground text-sm max-w-lg mx-auto">
+              Decline from peak on a compounded equity basis
+            </p>
+            <LiveDataBadge text="Real account drawdown history" pulse={false} />
+          </div>
+        </AnimatedSection>
+        <AnimatedSection delay={100}>
+          <Card className="overflow-visible bg-card/50 backdrop-blur-sm border-border/50 p-4 sm:p-6">
+            {isLoading || allData.length === 0 ? (
+              <Skeleton className="h-[350px] w-full" />
+            ) : (
+              <>
+                <ChartPeriodFilter allData={allData} onFilter={setFilteredData} rebaseOnFilter />
+                <ZoomableChart
+                  data={filteredData}
+                  color="#ef4444bb"
+                  gradientId="drawdownGradEN"
+                  valueSuffix="%"
+                  valueLabel="Drawdown"
+                  valueDecimals={4}
+                  height="h-[250px] sm:h-[300px]"
+                  yearlyTicks
+                  locale="en-US"
+                  liveBadgeText="Live trading data · Updated daily via Binance API"
+                />
+              </>
+            )}
+          </Card>
+        </AnimatedSection>
+      </div>
+    </section>
+  );
+}
+
+// ── Daily P&L ─────────────────────────────────────────────────────────────────
+function DailyPnlSection({ stats, isLoading, strategyKey }: { stats?: StatsData; isLoading: boolean; strategyKey: StrategyKey }) {
+  const dailyData = stats?.dailyPnl ?? [];
+  const [filteredData, setFilteredData] = useState(dailyData);
+  const [zoomedData, setZoomedData] = useState<typeof dailyData | null>(null);
+  const [refLeft, setRefLeft] = useState<string | null>(null);
+  const [refRight, setRefRight] = useState<string | null>(null);
+
+  useEffect(() => { setFilteredData(dailyData); }, [stats]);
+  useEffect(() => { setZoomedData(null); }, [filteredData]);
+
+  const displayData = zoomedData ?? filteredData;
+  const isZoomed = zoomedData !== null;
+
+  const handleMouseDown = (e: any) => { if (e?.activeLabel) setRefLeft(e.activeLabel); };
+  const handleMouseMove = (e: any) => { if (refLeft && e?.activeLabel) setRefRight(e.activeLabel); };
+  const handleMouseUp = () => {
+    if (refLeft && refRight && refLeft !== refRight) {
+      const leftIdx = filteredData.findIndex((d) => d.date === refLeft);
+      const rightIdx = filteredData.findIndex((d) => d.date === refRight);
+      const [from, to] = leftIdx < rightIdx ? [leftIdx, rightIdx] : [rightIdx, leftIdx];
+      if (to - from > 1) setZoomedData(filteredData.slice(from, to + 1));
+    }
+    setRefLeft(null); setRefRight(null);
+  };
+
+  const chartBarData = useMemo(() => {
+    const minBar = displayData.length > 0 ? Math.max(...displayData.map(d => Math.abs(d.value))) * 0.02 : 0.01;
+    return displayData.map((d) => ({ ...d, displayValue: Math.abs(d.value) < 0.0001 ? minBar : d.value }));
+  }, [displayData]);
+
+  const yExtreme = useMemo(() => {
+    if (displayData.length === 0) return 2;
+    return Math.ceil(Math.max(...displayData.map((d) => Math.abs(d.value))) * 1.1 * 10) / 10;
+  }, [displayData]);
+
+  return (
+    <section id="daily-pnl" className="py-12 px-4 sm:px-6 relative" data-testid="section-daily-pnl">
+      <div className="max-w-5xl mx-auto">
+        <AnimatedSection>
+          <div className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Daily P&amp;L</h2>
+            <p className="text-muted-foreground text-sm max-w-lg mx-auto">Daily return distribution</p>
+            <LiveDataBadge text="Live trading account data" pulse={false} />
+            <div className="flex items-center justify-center gap-3 mt-4">
+              <TooltipProvider delayDuration={0}>
+                <UITooltip>
+                  <TooltipTrigger asChild>
+                    <a href={`/api/csv?strategy=${strategyKey}`} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10 transition-all">
+                      <Download className="w-3.5 h-3.5" />
+                      Download CSV
+                    </a>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Data updated daily via Binance API</p></TooltipContent>
+                </UITooltip>
+                <UITooltip>
+                  <TooltipTrigger asChild>
+                    <a href={`/api/quantstats?strategy=${strategyKey}`} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10 transition-all">
+                      <FileText className="w-3.5 h-3.5" />
+                      QuantStats Report
+                    </a>
+                  </TooltipTrigger>
+                  <TooltipContent><p>Data updated daily via Binance API</p></TooltipContent>
+                </UITooltip>
+              </TooltipProvider>
+            </div>
+          </div>
+        </AnimatedSection>
+        <AnimatedSection delay={100}>
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50 p-4 sm:p-6">
+            {isLoading || dailyData.length === 0 ? (
+              <Skeleton className="h-[300px] w-full" />
+            ) : (
+              <>
+                <ChartPeriodFilter allData={dailyData} onFilter={setFilteredData} />
+                {isZoomed && (
+                  <div className="flex justify-end mb-2">
+                    <Button variant="outline" size="sm" className="text-xs border-border/50" onClick={() => setZoomedData(null)}>Reset Zoom</Button>
+                  </div>
+                )}
+                <div className="h-[250px] sm:h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartBarData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+                      onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
+                      <XAxis dataKey="date" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
+                        tickLine={false} axisLine={{ stroke: "hsl(var(--border))" }}
+                        tickFormatter={(v: string) => new Date(v + "T00:00:00").toLocaleDateString("en-US", { month: "short", year: "2-digit" })}
+                        interval={Math.max(0, Math.floor(displayData.length / 8) - 1)} />
+                      <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} tickLine={false} axisLine={false}
+                        tickFormatter={(v: number) => `${v > 0 ? "+" : ""}${v.toFixed(1)}%`}
+                        domain={[-yExtreme, yExtreme]} />
+                      <Tooltip
+                        contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }}
+                        formatter={(value: number) => [`${value >= 0 ? "+" : ""}${value.toFixed(4)}%`, "P&L"]}
+                        labelFormatter={(label: string) => new Date(label + "T00:00:00").toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" })} />
+                      {refLeft && refRight && (
+                        <ReferenceArea x1={refLeft} x2={refRight} strokeOpacity={0.3} fill="rgba(6,182,212,0.08)" />
+                      )}
+                      <Bar dataKey="displayValue" radius={[2, 2, 0, 0]}>
+                        {chartBarData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.value >= 0 ? "#10b981" : "#ef4444"} fillOpacity={0.85} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </>
+            )}
+          </Card>
+        </AnimatedSection>
+      </div>
+    </section>
+  );
+}
+
 function EquityChartSection({ stats, isLoading, strategyKey }: { stats?: StatsData; isLoading: boolean; strategyKey: StrategyKey }) {
   const equityRaw = stats?.equity ?? [];
   const [filteredData, setFilteredData] = useState(equityRaw);
@@ -1688,9 +1929,12 @@ export default function Home() {
       <ExchangesBar />
       <SocialProofBar />
 
+      <StrategyOverviewSection sc={sc} />
       <EquityChartSection stats={stats ?? undefined} isLoading={isLoading} strategyKey={strategy} />
-      <ROIGrowthSection stats={stats ?? undefined} />
+      <DrawdownChartSection stats={stats ?? undefined} isLoading={isLoading} />
       <MetricsSection stats={stats ?? undefined} isLoading={isLoading} strategyKey={strategy} />
+      <DailyPnlSection stats={stats ?? undefined} isLoading={isLoading} strategyKey={strategy} />
+      <ROIGrowthSection stats={stats ?? undefined} />
       <ResultsSection stats={stats ?? undefined} isLoading={isLoading} />
 
       <section className="py-12 px-4 sm:px-6 relative" data-testid="section-strategy">
