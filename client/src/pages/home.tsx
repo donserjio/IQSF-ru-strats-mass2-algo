@@ -1045,10 +1045,15 @@ function EquityChartSection({ stats, isLoading, strategyKey }: { stats?: StatsDa
     setFilteredData(equityRaw);
   }, [equityRaw]);
 
-  const capitalData = filteredData.map((d) => ({
-    ...d,
-    value: parseFloat((capitalInput * (1 + d.value / 100) - capitalInput).toFixed(2)),
-  }));
+  const capitalData = useMemo(() => {
+    if (filteredData.length === 0) return [];
+    const baseReturn = filteredData.find((d) => isFinite(d.value))?.value ?? 0;
+    return filteredData.map((d) => {
+      if (!isFinite(d.value)) return { ...d, value: capitalInput };
+      const periodReturn = (d.value - baseReturn) / (1 + baseReturn / 100);
+      return { ...d, value: Math.round(capitalInput * (1 + periodReturn / 100)) };
+    });
+  }, [filteredData, capitalInput]);
 
   return (
     <section id="equity" className="py-12 px-4 sm:px-6 relative" data-testid="section-equity">
