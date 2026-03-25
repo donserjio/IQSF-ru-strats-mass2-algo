@@ -1039,23 +1039,9 @@ function ZoomableChart({
 function EquityChartSection({ stats, isLoading, strategyKey }: { stats?: StatsData; isLoading: boolean; strategyKey: StrategyKey }) {
   const equityRaw = stats?.equity ?? [];
   const [filteredData, setFilteredData] = useState(equityRaw);
-  const [capitalInput, setCapitalInput] = useState(300000);
-  const capitalPresets = [300000, 500000, 1000000, 2000000, 5000000];
-  const fmtCapital = (v: number) => v >= 1000000 ? `$${v/1000000}M` : `$${v/1000}K`;
-
   useEffect(() => {
     setFilteredData(equityRaw);
   }, [equityRaw]);
-
-  const capitalData = useMemo(() => {
-    if (filteredData.length === 0) return [];
-    const baseReturn = filteredData.find((d) => isFinite(d.value))?.value ?? 0;
-    return filteredData.map((d) => {
-      if (!isFinite(d.value)) return { ...d, value: capitalInput };
-      const periodReturn = (d.value - baseReturn) / (1 + baseReturn / 100);
-      return { ...d, value: Math.round(capitalInput * (1 + periodReturn / 100)) };
-    });
-  }, [filteredData, capitalInput]);
 
   return (
     <section id="equity" className="py-12 px-4 sm:px-6 relative" data-testid="section-equity">
@@ -1077,17 +1063,6 @@ function EquityChartSection({ stats, isLoading, strategyKey }: { stats?: StatsDa
             <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
               <h3 className="text-sm font-semibold text-foreground">Equity Curve</h3>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs text-muted-foreground whitespace-nowrap">Capital:</span>
-                {capitalPresets.map((v) => (
-                  <button key={v} onClick={() => setCapitalInput(v)}
-                    className={`px-3 py-1 rounded text-xs font-semibold transition-all ${
-                      capitalInput === v
-                        ? "bg-gradient-to-r from-cyan-600/80 to-blue-700/80 text-white"
-                        : "bg-background/50 border border-border/50 text-muted-foreground hover:text-foreground hover:border-cyan-500/40"
-                    }`}>
-                    {fmtCapital(v)}
-                  </button>
-                ))}
                 <Button
                   variant="outline"
                   size="sm"
@@ -1108,18 +1083,251 @@ function EquityChartSection({ stats, isLoading, strategyKey }: { stats?: StatsDa
               <div className="h-[300px] flex items-center justify-center text-muted-foreground text-sm">No data</div>
             ) : (
               <ZoomableChart
-                data={capitalData}
+                data={filteredData}
                 color="#06b6d4"
                 gradientId="equityGrad"
-                valueSuffix="$"
-                valueLabel="P&L"
-                valueDecimals={0}
+                valueSuffix="%"
+                valueLabel="Return"
+                valueDecimals={2}
                 height="h-[300px] sm:h-[400px]"
+                rebaseOnZoom
                 yearlyTicks
                 locale="en-US"
                 liveBadgeText="Live trading account · Updated daily via Binance API"
               />
             )}
+          </Card>
+        </AnimatedSection>
+      </div>
+    </section>
+  );
+}
+
+// ── ROI Growth Section ────────────────────────────────────────────────────────
+function ROIGrowthSection({ stats }: { stats?: StatsData }) {
+  const CAPITALS = [
+    { label: "$300K", value: 300_000 },
+    { label: "$500K", value: 500_000 },
+    { label: "$1M", value: 1_000_000 },
+    { label: "$2M", value: 2_000_000 },
+    { label: "$5M", value: 5_000_000 },
+  ];
+
+  const [capitalIdx, setCapitalIdx] = useState(0);
+  const [sliderIdx, setSliderIdx] = useState(0);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const capital = CAPITALS[capitalIdx].value;
+
+  const equityData = stats?.equity ?? [];
+  const firstDate = equityData[0]?.date ?? "";
+  const lastDate = equityData[equityData.length - 1]?.date ?? "";
+  const [startDate, setStartDate] = useState(firstDate);
+
+  useEffect(() => { if (firstDate && !startDate) setStartDate(firstDate); }, [firstDate]);
+
+  const handleSetStartDate = useCallback((date: string) => { setStartDate(date); setHasInteracted(true); }, []);
+
+  useEffect(() => { setSliderIdx(0); setHasInteracted(false); }, [capitalIdx]);
+
+  const chartData = useMemo(() => {
+    const startIdx = Math.max(0, equityData.findIndex((d) => d.date >= startDate));
+    const baseEquity = 1 + (equityData[startIdx]?.value ?? 0) / 100;
+    return equityData.slice(startIdx).map((d) => ({
+      date: d.date,
+      value: capital * (1 + d.value / 100) / baseEquity,
+    }));
+  }, [equityData, capital, startDate]);
+
+  const maxIdx = Math.max(0, chartData.length - 1);
+
+  useEffect(() => { if (hasInteracted) setSliderIdx(0); }, [startDate]);
+
+  const visibleData = useMemo(() => chartData.slice(0, sliderIdx + 1), [chartData, sliderIdx]);
+  const chartDisplayData = useMemo(() => chartData.map((d, i) => ({
+    ...d, displayValue: i <= sliderIdx ? d.value : null,
+  })), [chartData, sliderIdx]);
+
+  const currentValue = visibleData.length > 0 ? visibleData[visibleData.length - 1].value : capital;
+  const profit = currentValue - capital;
+  const currentDate = visibleData.length > 0 ? visibleData[visibleData.length - 1].date : chartData[0]?.date ?? "";
+
+  const peakValue = useMemo(() => visibleData.length === 0 ? capital : Math.max(...visibleData.map((d) => d.value)), [visibleData, capital]);
+  const currentDDPct = peakValue > 0 ? ((currentValue - peakValue) / peakValue) * 100 : 0;
+  const currentDDDollar = currentValue - peakValue;
+
+  const maxDrawdown = useMemo(() => {
+    if (visibleData.length < 2) return { pct: 0, dollar: 0 };
+    let peak = visibleData[0].value; let worstPct = 0; let worstDollar = 0;
+    for (const d of visibleData) {
+      if (d.value > peak) peak = d.value;
+      const ddPct = (d.value - peak) / peak * 100;
+      if (ddPct < worstPct) { worstPct = ddPct; worstDollar = d.value - peak; }
+    }
+    return { pct: worstPct, dollar: worstDollar };
+  }, [visibleData]);
+
+  const availableYears = useMemo(() => {
+    if (equityData.length === 0) return [];
+    const seen = new Set<string>();
+    return equityData.map((d) => d.date.substring(0, 4))
+      .filter((y) => { if (seen.has(y)) return false; seen.add(y); return true; }).sort();
+  }, [equityData]);
+
+  const yMin = useMemo(() => visibleData.length < 2 ? capital * 0.8 : Math.min(...visibleData.map((d) => d.value)) * 0.97, [visibleData, capital]);
+  const yMax = useMemo(() => visibleData.length < 2 ? capital * 1.2 : Math.max(...visibleData.map((d) => d.value)) * 1.03, [visibleData, capital]);
+
+  function fmtDollar(v: number) {
+    const abs = Math.abs(v); const sign = v < 0 ? "-" : "+";
+    if (abs >= 1_000_000) return sign + "$" + (abs / 1_000_000).toFixed(2) + "M";
+    if (abs >= 1_000) return sign + "$" + Math.round(abs / 1_000) + "K";
+    return sign + "$" + Math.round(abs);
+  }
+  function fmtValue(v: number) {
+    if (v >= 1_000_000) return "$" + (v / 1_000_000).toFixed(2) + "M";
+    if (v >= 1_000) return "$" + Math.round(v / 1_000) + "K";
+    return "$" + Math.round(v);
+  }
+  function fmtYAxis(v: number) {
+    if (v >= 1_000_000) return "$" + (v / 1_000_000).toFixed(1) + "M";
+    if (v >= 100_000) return "$" + Math.round(v / 1_000) + "K";
+    if (v >= 1_000) return "$" + (v / 1_000).toFixed(1) + "K";
+    return "$" + Math.round(v);
+  }
+
+  const sliderPct = maxIdx > 0 ? (sliderIdx / maxIdx) * 100 : 0;
+
+  return (
+    <section id="roi" className="py-20 px-4 sm:px-6 relative" data-testid="section-roi-growth">
+      <div className="max-w-5xl mx-auto">
+        <AnimatedSection>
+          <div className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Capital Growth</h2>
+            <p className="text-muted-foreground text-sm max-w-lg mx-auto">
+              Drag the timeline to see how your allocation grows over the strategy period
+            </p>
+            <LiveDataBadge text="Based on live trading data" pulse={false} />
+          </div>
+        </AnimatedSection>
+        <AnimatedSection delay={100}>
+          <Card className="p-6 sm:p-8 bg-card/50 backdrop-blur-sm border-border/50">
+            <div className="mb-8">
+              <p className="text-sm text-muted-foreground text-center sm:text-left mb-4">Starting Capital</p>
+              <div className="flex flex-wrap justify-center sm:justify-start gap-2">
+                {CAPITALS.map((c, i) => (
+                  <button key={c.label} onClick={() => setCapitalIdx(i)}
+                    className={`px-5 py-2 rounded-md text-sm font-semibold transition-all ${
+                      capitalIdx === i
+                        ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20"
+                        : "bg-background/50 border border-border/50 text-muted-foreground hover:text-foreground hover:border-cyan-500/40"
+                    }`}>{c.label}</button>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+              <Card className="p-4 bg-background/50 border-border/30 text-center h-[88px] flex flex-col justify-center">
+                <p className="text-xs text-muted-foreground mb-2">Start Capital</p>
+                <p className="text-xl sm:text-2xl font-bold font-mono text-foreground">{fmtValue(capital)}</p>
+              </Card>
+              <Card className="p-4 bg-background/50 border-border/30 text-center h-[88px] flex flex-col justify-center">
+                <p className="text-xs text-muted-foreground mb-2">Current Value</p>
+                <p className="text-xl sm:text-2xl font-bold font-mono text-blue-400">{fmtValue(currentValue)}</p>
+              </Card>
+              <Card className="p-4 bg-background/50 border-border/30 text-center h-[88px] flex flex-col justify-center">
+                <p className="text-xs text-muted-foreground mb-0.5">Profit / Loss</p>
+                <p className={`text-xl sm:text-2xl font-bold font-mono ${profit >= 0 ? "text-cyan-400" : "text-red-400"}`}>{fmtDollar(profit)}</p>
+                <p className={`text-[10px] font-mono ${profit >= 0 ? "text-cyan-400/70" : "text-red-400/70"}`}>{profit >= 0 ? "+" : ""}{((profit / capital) * 100).toFixed(2)}%</p>
+              </Card>
+              <Card className="p-4 bg-background/50 border-border/30 text-center h-[88px] flex flex-col justify-center">
+                <p className="text-xs text-muted-foreground mb-0.5">Current Drawdown</p>
+                <p className={`text-xl sm:text-2xl font-bold font-mono ${currentDDPct < -0.01 ? "text-red-400" : "text-muted-foreground/50"}`}>{currentDDPct < -0.01 ? currentDDPct.toFixed(2) + "%" : "—"}</p>
+                <p className={`text-[10px] font-mono ${currentDDPct < -0.01 ? "text-red-400/70" : "text-transparent"}`}>{currentDDPct < -0.01 ? fmtDollar(currentDDDollar) : "\u00A0"}</p>
+              </Card>
+              <Card className="p-4 bg-background/50 border-border/30 text-center h-[88px] flex flex-col justify-center">
+                <p className="text-xs text-muted-foreground mb-0.5">Max Drawdown</p>
+                <p className={`text-xl sm:text-2xl font-bold font-mono ${maxDrawdown.pct < -0.01 ? "text-red-400" : "text-muted-foreground/50"}`}>{maxDrawdown.pct < -0.01 ? maxDrawdown.pct.toFixed(2) + "%" : "—"}</p>
+                <p className="text-[10px] font-mono text-transparent">{"\u00A0"}</p>
+              </Card>
+              <Card className="p-4 bg-background/50 border-border/30 text-center h-[88px] flex flex-col justify-center">
+                <p className="text-xs text-muted-foreground mb-2">As of</p>
+                <p className="text-base sm:text-lg font-bold font-mono text-muted-foreground">{currentDate ? new Date(currentDate).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "—"}</p>
+              </Card>
+            </div>
+            <div className="relative h-64 sm:h-80 mb-2">
+              {visibleData.length < 2 ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 pointer-events-none select-none">
+                  <span className="text-lg sm:text-xl font-semibold text-cyan-400/80 animate-pulse tracking-wide">← Drag the slider to reveal growth →</span>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartDisplayData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="growthGradientEN" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
+                    <XAxis dataKey="date" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10, dy: 8 }} tickLine={false} axisLine={{ stroke: "hsl(var(--border))" }}
+                      tickFormatter={(v: string) => { const d = new Date(v); const s = chartData.length; if (s <= 180) return d.toLocaleDateString("en-US", { month: "short", day: "numeric" }); if (s <= 730) return d.toLocaleDateString("en-US", { month: "short", year: "2-digit" }); return d.getFullYear().toString(); }}
+                      interval={Math.max(1, Math.floor(chartData.length / 6))} />
+                    <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={fmtYAxis} width={65} domain={[yMin, yMax]} allowDataOverflow tickCount={6} />
+                    <Tooltip content={({ active, payload, label }: any) => {
+                      if (!active || !payload?.length) return null;
+                      const val = payload[0].value; if (val == null) return null;
+                      const dateStr = new Date(label).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+                      const returnPct = ((val - capital) / capital) * 100;
+                      return (
+                        <div className="bg-card border border-border rounded-lg px-4 py-3 shadow-xl min-w-[220px]">
+                          <p className="text-sm font-bold text-foreground mb-2">{dateStr}</p>
+                          <div className="flex items-center justify-between gap-6 mb-1"><span className="text-xs text-muted-foreground">Portfolio Value</span><span className="text-sm font-bold font-mono text-foreground">{fmtValue(val)}</span></div>
+                          <div className="flex items-center justify-between gap-6"><span className="text-xs text-muted-foreground">Return</span><span className={`text-sm font-bold font-mono ${returnPct >= 0 ? "text-cyan-400" : "text-red-400"}`}>{returnPct >= 0 ? "+" : ""}{returnPct.toFixed(2)}%</span></div>
+                        </div>
+                      );
+                    }} />
+                    <Area type="linear" dataKey="displayValue" stroke="#06b6d4" connectNulls={false} strokeWidth={1.5} fill="url(#growthGradientEN)" dot={false} activeDot={{ r: 4, fill: "#06b6d4", stroke: "#0a0e27", strokeWidth: 2 }} isAnimationActive={false} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+            <div className="px-1 mb-2">
+              <div className="relative">
+                <input type="range" min={0} max={maxIdx} step={1} value={sliderIdx}
+                  onChange={(e) => { setSliderIdx(Number(e.target.value)); if (!hasInteracted) setHasInteracted(true); }}
+                  className="w-full h-3 appearance-none rounded-full cursor-ew-resize growth-slider"
+                  style={{ background: `linear-gradient(to right, #06b6d4 0%, #3b82f6 ${sliderPct}%, hsl(var(--border)) ${sliderPct}%, hsl(var(--border)) 100%)` }}
+                />
+                {!hasInteracted && <div className="absolute -top-9 left-0 flex items-center gap-2 pointer-events-none select-none"><span className="text-sm font-semibold text-cyan-400 animate-pulse">← Drag the slider →</span></div>}
+              </div>
+              <div className="flex items-start justify-between mt-3 gap-4">
+                <div className="flex flex-wrap gap-1.5">
+                  {availableYears.map((y) => {
+                    const yearStart = equityData.find((d) => d.date.startsWith(y))?.date ?? "";
+                    return (
+                      <button key={y} onClick={() => handleSetStartDate(yearStart)}
+                        className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${startDate === yearStart ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/40" : "bg-background/50 border border-border/50 text-muted-foreground hover:text-foreground hover:border-cyan-500/40"}`}>{y}</button>
+                    );
+                  })}
+                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="bg-background/50 border border-border/50 text-foreground text-xs font-mono rounded-md px-2.5 py-1.5 cursor-pointer focus:outline-none focus:border-cyan-500/60 hover:border-cyan-500/40 transition-colors flex items-center gap-1.5">
+                      <CalendarRange className="w-3 h-3 text-muted-foreground" />
+                      {startDate ? new Date(startDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Pick date"}
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <CalendarPicker mode="single" captionLayout="dropdown"
+                      selected={startDate ? new Date(startDate + "T00:00:00") : undefined}
+                      onSelect={(d: Date | undefined) => { if (d) handleSetStartDate(d.toISOString().substring(0, 10)); }}
+                      fromDate={firstDate ? new Date(firstDate + "T00:00:00") : undefined}
+                      toDate={lastDate ? new Date(lastDate + "T00:00:00") : undefined}
+                      defaultMonth={startDate ? new Date(startDate + "T00:00:00") : undefined}
+                      initialFocus />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+            <p className="text-[10px] text-muted-foreground/40 text-center mt-3">Based on historical strategy performance. Past performance is not indicative of future results.</p>
           </Card>
         </AnimatedSection>
       </div>
@@ -1481,6 +1689,7 @@ export default function Home() {
       <SocialProofBar />
 
       <EquityChartSection stats={stats ?? undefined} isLoading={isLoading} strategyKey={strategy} />
+      <ROIGrowthSection stats={stats ?? undefined} />
       <MetricsSection stats={stats ?? undefined} isLoading={isLoading} strategyKey={strategy} />
       <ResultsSection stats={stats ?? undefined} isLoading={isLoading} />
 
