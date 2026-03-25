@@ -1661,7 +1661,7 @@ function ResultsSection({ stats, isLoading }: { stats?: StatsData; isLoading: bo
 }
 
 const ACCESS_TERMS_BASE = [
-  { label: "Min. Allocation", value: "$500" },
+  { label: "Min. Allocation", value: "$20,000" },
   { label: "Management Fee", value: "0%" },
   { label: "Performance Fee", value: "30%" },
   { label: "High-water mark", value: "Applied" },
@@ -1724,7 +1724,7 @@ function buildFaqItems(sc: StrategyConfig) {
     },
     {
       q: "What is the minimum allocation?",
-      a: "Minimum allocation — $500. We support all major cryptocurrency exchanges.",
+      a: "Minimum allocation — $20,000. We support all major cryptocurrency exchanges.",
     },
     {
       q: "What fees apply?",
@@ -2003,7 +2003,7 @@ export default function Home() {
           </AnimatedSection>
           <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:gap-6">
             {[
-              { step: "01", title: "Open an Exchange Account", desc: "Binance, OKX, Bybit, Bitget, BingX. Minimum — $500." },
+              { step: "01", title: "Open an Exchange Account", desc: "Binance, OKX, Bybit, Bitget, BingX. Minimum — $20,000." },
               { step: "02", title: "Contact Us", desc: "Telegram / WhatsApp. Connection via API key in 10 minutes." },
               { step: "03", title: "The Algorithm Works for You", desc: "24/7 automated trading. 30% performance fee. No lock-up." },
             ].map((item) => (
